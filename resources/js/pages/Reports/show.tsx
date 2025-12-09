@@ -350,7 +350,7 @@ export default function ReportShow({ report }: Props) {
                                             </div>
 
                                             <Link
-                                                href={`/campaigns/${report.campaign.slug}`}
+                                                href={`/campaigns/${report.campaign.id}`}
                                             >
                                                 <Button className="btn-shadow w-full bg-primary text-white hover:bg-primary/90">
                                                     Lihat Kampanye

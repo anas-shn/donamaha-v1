@@ -240,7 +240,7 @@ export default function ReportsIndex({ reports, campaign_id }: Props) {
                                                 </CardTitle>
                                                 <CardDescription className="flex flex-col gap-2">
                                                     <Link
-                                                        href={`/campaigns/${report.campaign.slug}`}
+                                                        href={`/campaigns/${report.campaign.id}`}
                                                         className="font-medium text-primary hover:underline"
                                                     >
                                                         {report.campaign.title}

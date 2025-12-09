@@ -95,7 +95,8 @@ export default function DonationsIndex({ donations }: Props) {
             const donationDate = new Date(donation.created_at);
             const now = new Date();
             const daysDiff = Math.floor(
-                (now.getTime() - donationDate.getTime()) / (1000 * 60 * 60 * 24),
+                (now.getTime() - donationDate.getTime()) /
+                    (1000 * 60 * 60 * 24),
             );
 
             switch (dateFilter) {
@@ -140,8 +141,7 @@ export default function DonationsIndex({ donations }: Props) {
     };
 
     const handleDownloadReceipt = (donationId: number) => {
-        // TODO: Implement receipt download
-        alert('Download receipt untuk donasi #' + donationId);
+        window.location.href = `/donations/${donationId}/receipt`;
     };
 
     return (
@@ -189,7 +189,8 @@ export default function DonationsIndex({ donations }: Props) {
                                             {formatCurrency(totalDonated)}
                                         </div>
                                         <p className="text-xs text-gray-500">
-                                            Dari {totalDonations} donasi berhasil
+                                            Dari {totalDonations} donasi
+                                            berhasil
                                         </p>
                                     </CardContent>
                                 </Card>
@@ -365,8 +366,12 @@ export default function DonationsIndex({ donations }: Props) {
                                                     <TableHead>
                                                         Kampanye
                                                     </TableHead>
-                                                    <TableHead>Jumlah</TableHead>
-                                                    <TableHead>Status</TableHead>
+                                                    <TableHead>
+                                                        Jumlah
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Status
+                                                    </TableHead>
                                                     <TableHead className="text-right">
                                                         Aksi
                                                     </TableHead>
@@ -385,7 +390,7 @@ export default function DonationsIndex({ donations }: Props) {
                                                             </TableCell>
                                                             <TableCell>
                                                                 <Link
-                                                                    href={`/campaigns/${donation.campaign.slug}`}
+                                                                    href={`/campaigns/${donation.campaign.id}`}
                                                                     className="font-medium text-primary hover:underline"
                                                                 >
                                                                     {
@@ -431,12 +436,12 @@ export default function DonationsIndex({ donations }: Props) {
                                                                 ) : donation.status ===
                                                                   'pending' ? (
                                                                     <Link
-                                                                        href={`/donations/${donation.id}`}
+                                                                        href={`/donations/${donation.id}/payment`}
                                                                     >
                                                                         <Button
                                                                             variant="default"
                                                                             size="sm"
-                                                                            className="btn-shadow bg-primary hover:bg-primary/90"
+                                                                            className="w-full"
                                                                         >
                                                                             Bayar
                                                                             Sekarang
@@ -463,7 +468,7 @@ export default function DonationsIndex({ donations }: Props) {
                                                         <div className="flex-1">
                                                             <CardTitle className="text-base">
                                                                 <Link
-                                                                    href={`/campaigns/${donation.campaign.slug}`}
+                                                                    href={`/campaigns/${donation.campaign.id}`}
                                                                     className="text-primary hover:underline"
                                                                 >
                                                                     {
@@ -522,7 +527,7 @@ export default function DonationsIndex({ donations }: Props) {
                                                     {donation.status ===
                                                         'pending' && (
                                                         <Link
-                                                            href={`/donations/${donation.id}`}
+                                                            href={`/donations/${donation.id}/payment`}
                                                         >
                                                             <Button className="btn-shadow w-full bg-primary hover:bg-primary/90">
                                                                 Bayar Sekarang

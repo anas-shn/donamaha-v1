@@ -1,8 +1,29 @@
 import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/react';
-import { Heart } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Link, usePage } from '@inertiajs/react';
+import { Heart, History, LogOut, Settings, User } from 'lucide-react';
+
+interface Auth {
+    user?: {
+        id: number;
+        name: string;
+        email: string;
+    };
+}
+
+interface PageProps {
+    auth: Auth;
+}
 
 export const Navbar = () => {
+    const { auth } = usePage<PageProps>().props;
     return (
         <nav className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b backdrop-blur">
             <div className="container-custom">
@@ -10,9 +31,9 @@ export const Navbar = () => {
                     {/* Logo */}
                     <Link
                         href="/"
-                        className="text-foreground hover:text-primary flex items-center space-x-2 text-xl font-bold transition-colors"
+                        className="text-foreground flex items-center space-x-2 text-xl font-bold transition-colors hover:text-primary"
                     >
-                        <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-white">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white">
                             <Heart className="h-5 w-5 fill-current" />
                         </div>
                         <span className="text-xl font-bold">Donamaha</span>
@@ -22,49 +43,112 @@ export const Navbar = () => {
                     <div className="hidden items-center space-x-8 md:flex">
                         <Link
                             href="/"
-                            className="text-foreground hover:text-primary text-sm font-medium transition-colors"
+                            className="text-foreground text-sm font-medium transition-colors hover:text-primary"
                         >
                             Home
                         </Link>
                         <Link
                             href="/about"
-                            className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
+                            className="text-muted-foreground text-sm font-medium transition-colors hover:text-primary"
                         >
                             About Us
                         </Link>
                         <Link
                             href="/campaigns"
-                            className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
+                            className="text-muted-foreground text-sm font-medium transition-colors hover:text-primary"
                         >
                             Campaigns
                         </Link>
                         <Link
                             href="/reports"
-                            className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
+                            className="text-muted-foreground text-sm font-medium transition-colors hover:text-primary"
                         >
-                            Coverage
+                            Reports
                         </Link>
-                        <Link
-                            href="/news"
-                            className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
-                        >
-                            News
-                        </Link>
-                        <Link
-                            href="/volunteer"
-                            className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
-                        >
-                            Volunteer
-                        </Link>
+                        {auth.user && (
+                            <Link
+                                href="/donations"
+                                className="text-muted-foreground text-sm font-medium transition-colors hover:text-primary"
+                            >
+                                History
+                            </Link>
+                        )}
                     </div>
 
-                    {/* CTA Button */}
-                    <div className="hidden items-center md:flex">
-                        <Link href="/register">
-                            <Button className="bg-primary hover:bg-primary/90 btn-shadow text-white">
-                                Join as a Member
-                            </Button>
-                        </Link>
+                    {/* Auth Section */}
+                    <div className="hidden items-center gap-4 md:flex">
+                        {auth.user ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="flex items-center gap-2"
+                                    >
+                                        <User className="h-4 w-4" />
+                                        <span>{auth.user.name}</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-56"
+                                >
+                                    <DropdownMenuLabel>
+                                        My Account
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/dashboard"
+                                            className="flex w-full cursor-pointer items-center"
+                                        >
+                                            <User className="mr-2 h-4 w-4" />
+                                            <span>Dashboard</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/donations"
+                                            className="flex w-full cursor-pointer items-center"
+                                        >
+                                            <History className="mr-2 h-4 w-4" />
+                                            <span>Donation History</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/settings/profile"
+                                            className="flex w-full cursor-pointer items-center"
+                                        >
+                                            <Settings className="mr-2 h-4 w-4" />
+                                            <span>Settings</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/logout"
+                                            method="post"
+                                            as="button"
+                                            className="flex w-full cursor-pointer items-center text-red-600"
+                                        >
+                                            <LogOut className="mr-2 h-4 w-4" />
+                                            <span>Logout</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        ) : (
+                            <>
+                                <Link href="/login">
+                                    <Button variant="ghost">Login</Button>
+                                </Link>
+                                <Link href="/register">
+                                    <Button className="btn-shadow bg-primary text-white hover:bg-primary/90">
+                                        Register
+                                    </Button>
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}

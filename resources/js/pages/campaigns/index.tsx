@@ -17,6 +17,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    calculateDaysLeft,
+    calculateProgress,
+    formatCurrency,
+} from '@/lib/utils';
 import { Head, Link } from '@inertiajs/react';
 import { Clock, Filter, Heart, Search, Target, Users } from 'lucide-react';
 import { useState } from 'react';
@@ -47,26 +52,6 @@ export default function CampaignsIndex({ campaigns }: Props) {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [sortBy, setSortBy] = useState('latest');
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-        }).format(amount);
-    };
-
-    const calculateProgress = (collected: number, target: number) => {
-        return Math.min((collected / target) * 100, 100);
-    };
-
-    const calculateDaysLeft = (endDate: string) => {
-        const end = new Date(endDate);
-        const now = new Date();
-        const diff = end.getTime() - now.getTime();
-        const days = Math.ceil(diff / (1000 * 3600 * 24));
-        return days > 0 ? days : 0;
-    };
 
     const filteredCampaigns = campaigns
         .filter((campaign) => {

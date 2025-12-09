@@ -9,6 +9,7 @@ import {
     CardHeader,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { calculateProgress, formatCurrency } from '@/lib/utils';
 import { Head, Link } from '@inertiajs/react';
 import {
     ArrowRight,
@@ -40,18 +41,6 @@ interface Props {
 
 export default function Home({ campaigns = [] }: Props) {
     const featuredCampaigns = campaigns.slice(0, 3);
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-        }).format(amount);
-    };
-
-    const calculateProgress = (collected: number, target: number) => {
-        return Math.min((collected / target) * 100, 100);
-    };
 
     const categories = [
         {
@@ -120,7 +109,7 @@ export default function Home({ campaigns = [] }: Props) {
                                     <Link href="/campaigns">
                                         <Button
                                             size="lg"
-                                            className="bg-primary hover:bg-primary/90 btn-shadow text-white"
+                                            className="btn-shadow bg-primary text-white hover:bg-primary/90"
                                         >
                                             Donate Now
                                         </Button>
@@ -262,7 +251,7 @@ export default function Home({ campaigns = [] }: Props) {
 
                             {/* Content */}
                             <div className="space-y-6">
-                                <div className="text-primary text-sm font-semibold tracking-wider uppercase">
+                                <div className="text-sm font-semibold tracking-wider text-primary uppercase">
                                     About Us
                                 </div>
                                 <h2 className="text-4xl leading-tight font-bold">
@@ -277,7 +266,7 @@ export default function Home({ campaigns = [] }: Props) {
                                 <div className="space-y-4">
                                     <div className="flex gap-4">
                                         <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-pink-50">
-                                            <Heart className="text-primary h-6 w-6" />
+                                            <Heart className="h-6 w-6 text-primary" />
                                         </div>
                                         <div>
                                             <h3 className="font-semibold">
@@ -292,7 +281,7 @@ export default function Home({ campaigns = [] }: Props) {
 
                                     <div className="flex gap-4">
                                         <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-yellow-50">
-                                            <Users className="text-secondary h-6 w-6" />
+                                            <Users className="h-6 w-6 text-secondary" />
                                         </div>
                                         <div>
                                             <h3 className="font-semibold">
@@ -314,7 +303,7 @@ export default function Home({ campaigns = [] }: Props) {
                 <section className="gradient-warm py-20">
                     <div className="container-custom">
                         <div className="mb-12 text-center">
-                            <div className="text-primary mb-4 text-sm font-semibold tracking-wider uppercase">
+                            <div className="mb-4 text-sm font-semibold tracking-wider text-primary uppercase">
                                 Categories
                             </div>
                             <h2 className="text-4xl font-bold">
@@ -346,7 +335,7 @@ export default function Home({ campaigns = [] }: Props) {
                                         </p>
                                     </CardContent>
                                     <CardFooter>
-                                        <button className="text-primary hover:text-primary/80 flex items-center gap-2 text-sm font-semibold transition-colors">
+                                        <button className="flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary/80">
                                             Read More
                                             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                                         </button>
@@ -362,7 +351,7 @@ export default function Home({ campaigns = [] }: Props) {
                     <div className="container-custom">
                         <div className="mb-12 flex items-end justify-between">
                             <div>
-                                <div className="text-primary mb-4 text-sm font-semibold tracking-wider uppercase">
+                                <div className="mb-4 text-sm font-semibold tracking-wider text-primary uppercase">
                                     Campaigns
                                 </div>
                                 <h2 className="text-4xl font-bold">
@@ -372,7 +361,7 @@ export default function Home({ campaigns = [] }: Props) {
                             <Link href="/campaigns">
                                 <Button
                                     variant="outline"
-                                    className="border-primary text-primary hover:bg-primary/10 group"
+                                    className="group border-primary text-primary hover:bg-primary/10"
                                 >
                                     View All
                                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -437,7 +426,7 @@ export default function Home({ campaigns = [] }: Props) {
                                                         campaign.target_amount,
                                                     )}
                                                 </span>
-                                                <span className="text-primary font-semibold">
+                                                <span className="font-semibold text-primary">
                                                     {calculateProgress(
                                                         campaign.collected_amount,
                                                         campaign.target_amount,
@@ -452,7 +441,7 @@ export default function Home({ campaigns = [] }: Props) {
                                             href={`/campaigns/${campaign.id}`}
                                             className="w-full"
                                         >
-                                            <Button className="bg-primary hover:bg-primary/90 btn-shadow w-full text-white">
+                                            <Button className="btn-shadow w-full bg-primary text-white hover:bg-primary/90">
                                                 Donate
                                             </Button>
                                         </Link>
@@ -469,7 +458,7 @@ export default function Home({ campaigns = [] }: Props) {
                         <div className="grid items-center gap-12 lg:grid-cols-2">
                             {/* Left Content */}
                             <div className="space-y-6">
-                                <div className="text-primary text-sm font-semibold tracking-wider uppercase">
+                                <div className="text-sm font-semibold tracking-wider text-primary uppercase">
                                     Participate
                                 </div>
                                 <h2 className="text-4xl leading-tight font-bold lg:text-5xl">
@@ -484,7 +473,7 @@ export default function Home({ campaigns = [] }: Props) {
                                 <Link href="/register">
                                     <Button
                                         size="lg"
-                                        className="bg-primary hover:bg-primary/90 btn-shadow text-white"
+                                        className="btn-shadow bg-primary text-white hover:bg-primary/90"
                                     >
                                         Become a Volunteer
                                     </Button>
@@ -504,7 +493,7 @@ export default function Home({ campaigns = [] }: Props) {
                                 {/* Floating Stats */}
                                 <div className="absolute top-4 left-4 rounded-2xl bg-white p-4 shadow-lg">
                                     <div className="flex items-center gap-3">
-                                        <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-full">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary">
                                             <Target className="h-6 w-6 text-white" />
                                         </div>
                                         <div>
@@ -520,7 +509,7 @@ export default function Home({ campaigns = [] }: Props) {
 
                                 <div className="absolute right-4 bottom-4 rounded-2xl bg-white p-4 shadow-lg">
                                     <div className="flex items-center gap-3">
-                                        <div className="bg-secondary flex h-12 w-12 items-center justify-center rounded-full">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
                                             <Users className="h-6 w-6 text-white" />
                                         </div>
                                         <div>
