@@ -1,0 +1,361 @@
+@import 'tailwindcss';
+
+/* Donamaha Theme - Based on donasi.webp design */
+
+@theme {
+    /* Custom green primary color */
+    --color-primary: oklch(0.55 0.18 160);
+    --color-primary-foreground: oklch(1 0 0);
+
+    /* Secondary yellow/gold */
+    --color-secondary: oklch(0.82 0.15 85);
+    --color-secondary-foreground: oklch(0.25 0.02 240);
+
+    /* Accent pink */
+    --color-accent: oklch(0.75 0.15 350);
+    --color-accent-foreground: oklch(1 0 0);
+}
+
+@layer base {
+    :root {
+        /* Background - light cream/white */
+        --background: 0 0% 100%;
+        --foreground: 240 10% 15%;
+
+        /* Card colors */
+        --card: 0 0% 100%;
+        --card-foreground: 240 10% 15%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 240 10% 15%;
+
+        /* Primary - Green from donasi.webp #00B37E */
+        --primary: 160 100% 35%;
+        --primary-foreground: 0 0% 100%;
+
+        /* Secondary - Yellow/Gold accent */
+        --secondary: 45 93% 58%;
+        --secondary-foreground: 240 10% 15%;
+
+        --muted: 210 40% 96%;
+        --muted-foreground: 215 16% 47%;
+
+        /* Accent - Pink from design */
+        --accent: 330 81% 70%;
+        --accent-foreground: 0 0% 100%;
+
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+
+        --border: 214 32% 91%;
+        --input: 214 32% 91%;
+        --ring: 160 84% 39%;
+
+        --radius: 1rem;
+
+        /* Custom gradient backgrounds matching donasi.webp */
+        --gradient-hero: linear-gradient(
+            180deg,
+            hsl(160 100% 90%) 0%,
+            hsl(45 100% 95%) 100%
+        );
+
+        --gradient-primary: linear-gradient(
+            135deg,
+            hsl(160 84% 39%),
+            hsl(160 84% 49%)
+        );
+
+        --gradient-warm: linear-gradient(
+            180deg,
+            hsl(45 100% 97%) 0%,
+            hsl(30 100% 97%) 100%
+        );
+
+        /* Shadows */
+        --shadow-card: 0 2px 20px -4px hsl(160 84% 39% / 0.08);
+        --shadow-hover: 0 8px 30px -6px hsl(160 84% 39% / 0.15);
+
+        /* Sidebar */
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 160 84% 39%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 160 84% 39%;
+    }
+
+    /* Dark mode disabled by default - uncomment to enable */
+    /*
+    .dark {
+        --background: 240 10% 10%;
+        --foreground: 0 0% 98%;
+
+        --card: 240 10% 13%;
+        --card-foreground: 0 0% 98%;
+
+        --popover: 240 10% 13%;
+        --popover-foreground: 0 0% 98%;
+
+        --primary: 160 84% 45%;
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 45 93% 65%;
+        --secondary-foreground: 240 10% 10%;
+
+        --muted: 240 10% 20%;
+        --muted-foreground: 215 20% 65%;
+
+        --accent: 330 81% 70%;
+        --accent-foreground: 0 0% 100%;
+
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+
+        --border: 240 10% 20%;
+        --input: 240 10% 20%;
+        --ring: 160 84% 45%;
+
+        --gradient-hero: linear-gradient(
+            180deg,
+            hsl(240 10% 10%),
+            hsl(240 10% 15%)
+        );
+
+        --gradient-primary: linear-gradient(
+            135deg,
+            hsl(160 84% 39%),
+            hsl(160 84% 49%)
+        );
+
+        --shadow-card: 0 4px 20px -4px hsl(160 84% 39% / 0.25);
+        --shadow-hover: 0 8px 30px -6px hsl(160 84% 39% / 0.35);
+
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 160 84% 45%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 160 84% 45%;
+    }
+    */
+}
+
+@layer base {
+    * {
+        border-color: hsl(var(--border));
+    }
+
+    body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-feature-settings:
+            'rlig' 1,
+            'calt' 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-weight: 700;
+        letter-spacing: -0.025em;
+    }
+
+    h1 {
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+    }
+
+    h2 {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+        line-height: 2rem;
+    }
+
+    @media (min-width: 768px) {
+        h1 {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        h2 {
+            font-size: 2.25rem;
+            line-height: 2.5rem;
+        }
+
+        h3 {
+            font-size: 1.875rem;
+            line-height: 2.25rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        h1 {
+            font-size: 3.75rem;
+            line-height: 1;
+        }
+
+        h2 {
+            font-size: 3rem;
+            line-height: 1;
+        }
+    }
+}
+
+@layer utilities {
+    .gradient-hero {
+        background: var(--gradient-hero);
+    }
+
+    .gradient-primary {
+        background: var(--gradient-primary);
+    }
+
+    .gradient-warm {
+        background: var(--gradient-warm);
+    }
+
+    .shadow-card {
+        box-shadow: var(--shadow-card);
+    }
+
+    .shadow-hover {
+        box-shadow: var(--shadow-hover);
+    }
+
+    /* Decorative circles for hero section */
+    .decorative-circle {
+        position: absolute;
+        border-radius: 9999px;
+        opacity: 0.2;
+    }
+
+    /* Animation utilities */
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .animate-float-delayed {
+        animation: float 6s ease-in-out 3s infinite;
+    }
+
+    @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    /* Pulse animation for decorative elements */
+    .animate-pulse-slow {
+        animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Text gradient */
+    .text-gradient {
+        background: linear-gradient(
+            to right,
+            hsl(var(--primary)),
+            hsl(var(--primary) / 0.8)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* Container utilities */
+    .container-custom {
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .container-custom {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .container-custom {
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .container-custom {
+            max-width: 1280px;
+        }
+    }
+
+    /* Button with shadow */
+    .btn-shadow {
+        box-shadow: 0 4px 14px 0 rgba(0, 179, 126, 0.39);
+    }
+
+    .btn-shadow:hover {
+        box-shadow: 0 6px 20px 0 rgba(0, 179, 126, 0.5);
+    }
+
+    /* Green Button Utilities - Explicit Colors */
+    .bg-primary,
+    button.bg-primary,
+    a .bg-primary {
+        background-color: #00b37e !important;
+    }
+
+    .hover\:bg-primary\/90:hover,
+    button.bg-primary:hover {
+        background-color: #009a6a !important;
+    }
+
+    .text-primary {
+        color: #00b37e !important;
+    }
+
+    .border-primary {
+        border-color: #00b37e !important;
+    }
+
+    .hover\:text-primary:hover {
+        color: #00b37e !important;
+    }
+
+    .hover\:bg-primary\/10:hover {
+        background-color: rgba(0, 179, 126, 0.1) !important;
+    }
+
+    /* Ensure text-white is actually white */
+    .text-white {
+        color: #ffffff !important;
+    }
+
+    /* Green gradient for buttons */
+    .bg-gradient-to-r.from-primary {
+        background-image: linear-gradient(
+            to right,
+            #00b37e,
+            #00d68f
+        ) !important;
+    }
+}
