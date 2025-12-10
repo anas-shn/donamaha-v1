@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
 
         // Seed other data
         $this->call([
+            AdminUserSeeder::class,
             ReportSeeder::class,
         ]);
     }

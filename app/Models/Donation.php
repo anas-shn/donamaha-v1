@@ -15,6 +15,9 @@ class Donation extends Model
         'amount',
         'note',
         'status',
+        'donor_name',
+        'donor_email',
+        'is_anonymous',
     ];
 
     public function donor()

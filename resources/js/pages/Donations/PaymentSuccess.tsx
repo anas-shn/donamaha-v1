@@ -9,7 +9,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import AppLayout from '@/layouts/app-layout';
+
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { Head, router } from '@inertiajs/react';
 import {
@@ -94,20 +94,20 @@ export default function PaymentSuccess({ donation }: Props) {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="Pembayaran Berhasil" />
 
-            <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8 dark:from-gray-900 dark:to-gray-800">
+            <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-3xl">
                     {/* Success Icon & Message */}
                     <div className="mb-8 text-center">
-                        <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                            <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
+                        <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+                            <CheckCircle2 className="h-12 w-12 text-green-600" />
                         </div>
-                        <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                        <h1 className="mb-2 text-3xl font-bold text-gray-900">
                             Pembayaran Berhasil!
                         </h1>
-                        <p className="text-lg text-gray-600 dark:text-gray-400">
+                        <p className="text-lg text-gray-600">
                             Terima kasih atas donasi Anda. Semoga berkah dan
                             membawa manfaat.
                         </p>
@@ -208,7 +208,7 @@ export default function PaymentSuccess({ donation }: Props) {
                                     </span>
                                     <Badge
                                         variant="success"
-                                        className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                        className="bg-green-100 text-green-800"
                                     >
                                         {donation.status === 'paid'
                                             ? 'Lunas'
@@ -223,7 +223,7 @@ export default function PaymentSuccess({ donation }: Props) {
                                             <p className="text-muted-foreground mb-1 text-sm">
                                                 Catatan
                                             </p>
-                                            <p className="rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-800">
+                                            <p className="rounded-md bg-gray-50 p-3 text-sm">
                                                 {donation.note}
                                             </p>
                                         </div>
@@ -273,19 +273,19 @@ export default function PaymentSuccess({ donation }: Props) {
                     </div>
 
                     {/* Additional Info */}
-                    <Card className="mt-6 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/10">
+                    <Card className="mt-6 border-blue-200 bg-blue-50">
                         <CardContent className="pt-6">
                             <div className="flex gap-3">
                                 <div className="flex-shrink-0">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-                                        <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                                        <CheckCircle2 className="h-5 w-5 text-blue-600" />
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className="mb-1 font-semibold text-blue-900 dark:text-blue-100">
+                                    <h3 className="mb-1 font-semibold text-blue-900">
                                         Donasi Anda Telah Diterima
                                     </h3>
-                                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                                    <p className="text-sm text-blue-800">
                                         Donasi Anda akan segera disalurkan
                                         kepada penerima manfaat. Anda akan
                                         menerima email konfirmasi dan update
@@ -297,6 +297,6 @@ export default function PaymentSuccess({ donation }: Props) {
                     </Card>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }

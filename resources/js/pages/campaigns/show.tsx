@@ -57,6 +57,8 @@ interface Campaign {
         amount: number;
         note: string | null;
         created_at: string;
+        donor_name?: string | null;
+        is_anonymous?: boolean;
         donor: {
             name: string;
             avatar?: string | null;
@@ -90,9 +92,23 @@ export default function CampaignShow({ campaign, auth }: Props) {
 
     const handleDonate: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('donations.store'), {
+
+        // Basic validation
+        if (!data.amount || parseFloat(data.amount) < 1000) {
+            alert('Minimum donation amount is Rp 1,000');
+            return;
+        }
+
+        post('/donations', {
             preserveScroll: true,
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                // Form will automatically redirect to payment page
+                // via DonationController@store
+            },
+            onError: (errors) => {
+                console.error('Donation error:', errors);
+                alert('Failed to process donation. Please try again.');
+            },
         });
     };
 
@@ -403,10 +419,13 @@ export default function CampaignShow({ campaign, auth }: Props) {
                                                                     )}
                                                                     <div className="flex-1">
                                                                         <div className="font-semibold">
-                                                                            {donation
-                                                                                .donor
-                                                                                ?.name ||
-                                                                                'Anonymous'}
+                                                                            {donation.is_anonymous
+                                                                                ? 'Hamba Allah'
+                                                                                : donation.donor_name ||
+                                                                                  donation
+                                                                                      .donor
+                                                                                      ?.name ||
+                                                                                  'Hamba Allah'}
                                                                         </div>
                                                                         {donation.note && (
                                                                             <p className="text-muted-foreground mt-1 text-sm">
@@ -454,12 +473,13 @@ export default function CampaignShow({ campaign, auth }: Props) {
                                             <CardContent className="space-y-4">
                                                 <div className="space-y-2">
                                                     <Label htmlFor="amount">
-                                                        Donation Amount (IDR)
+                                                        Donation Amount (Rp) *
                                                     </Label>
                                                     <Input
                                                         id="amount"
                                                         type="number"
                                                         placeholder="50000"
+                                                        min="1000"
                                                         value={data.amount}
                                                         onChange={(e) =>
                                                             setData(
@@ -467,7 +487,6 @@ export default function CampaignShow({ campaign, auth }: Props) {
                                                                 e.target.value,
                                                             )
                                                         }
-                                                        min="10000"
                                                         required
                                                     />
                                                     {errors.amount && (

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payment;
 use App\Models\Donation;
+use App\Models\Payment;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class PaymentController extends Controller
 {
@@ -65,11 +65,23 @@ class PaymentController extends Controller
         }
 
         $validated = $request->validate([
-            'payment_method' => 'required|string|in:qris,bank_transfer,ewallet_gopay,ewallet_ovo,ewallet_dana,credit_card',
+            'payment_method' => 'required|string|in:bank_transfer,ewallet,credit_card',
+            'donor_name' => 'required|string|max:255',
+            'donor_email' => 'nullable|email|max:255',
+            'note' => 'nullable|string|max:1000',
+            'is_anonymous' => 'boolean',
         ]);
 
         DB::beginTransaction();
         try {
+            // Update donation with donor data
+            $donation->update([
+                'donor_name' => $validated['donor_name'],
+                'donor_email' => $validated['donor_email'] ?? null,
+                'note' => $validated['note'] ?? null,
+                'is_anonymous' => $validated['is_anonymous'] ?? false,
+            ]);
+
             // Create payment record
             $payment = Payment::create([
                 'donation_id' => $donation->id,
@@ -103,6 +115,7 @@ class PaymentController extends Controller
             // If payment requires redirect (e.g., to payment gateway)
             if (isset($paymentGatewayResponse['redirect_url'])) {
                 DB::commit();
+
                 return Inertia::location($paymentGatewayResponse['redirect_url']);
             }
 
@@ -112,7 +125,7 @@ class PaymentController extends Controller
             return redirect()->route('donations.payment.pending', $donation->id);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Payment processing error: ' . $e->getMessage());
+            Log::error('Payment processing error: '.$e->getMessage());
 
             return back()->with('error', 'Payment processing failed. Please try again.');
         }
@@ -212,7 +225,7 @@ class PaymentController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Payment callback error: ' . $e->getMessage());
+            Log::error('Payment callback error: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -239,7 +252,7 @@ class PaymentController extends Controller
         // For now, return a simple response
         return response()->download(
             public_path('receipts/sample-receipt.pdf'),
-            'receipt-' . $donation->id . '.pdf'
+            'receipt-'.$donation->id.'.pdf'
         );
     }
 
@@ -259,7 +272,7 @@ class PaymentController extends Controller
 
         return [
             'status' => 'success',
-            'transaction_id' => 'TXN-' . time() . '-' . $donation->id,
+            'transaction_id' => 'TXN-'.time().'-'.$donation->id,
             'message' => 'Payment processed successfully',
         ];
 

@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
 Route::get('/', function () {
     $campaigns = \App\Models\Campaign::with('organizer')
@@ -21,7 +20,25 @@ Route::get('/reports/{report}', [\App\Http\Controllers\ReportController::class, 
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
+        $donations = \App\Models\Donation::with(['campaign'])
+            ->where('donor_id', auth()->id())
+            ->latest()
+            ->get();
+
+        $totalDonated = $donations->where('status', 'paid')->sum('amount');
+        $totalDonations = $donations->where('status', 'paid')->count();
+        $campaignsHelped = $donations->where('status', 'paid')->pluck('campaign_id')->unique()->count();
+        $pendingDonations = $donations->where('status', 'pending')->count();
+
+        return Inertia::render('Dashboard', [
+            'donations' => $donations,
+            'stats' => [
+                'totalDonated' => $totalDonated,
+                'totalDonations' => $totalDonations,
+                'campaignsHelped' => $campaignsHelped,
+                'pendingDonations' => $pendingDonations,
+            ],
+        ]);
     })->name('dashboard');
 
     Route::resource('campaigns', \App\Http\Controllers\CampaignController::class);
@@ -48,5 +65,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Public webhook endpoint for payment gateway callbacks
 Route::post('/payments/callback', [\App\Http\Controllers\PaymentController::class, 'handleCallback'])->name('payments.callback');
+
+// Admin panel menggunakan Filament di /admin
+// Filament akan otomatis handle semua routes untuk admin panel
+// Hanya user dengan role 'admin' yang bisa akses (lihat User::canAccessPanel())
+
+// Custom admin routes (commented - using Filament instead)
+// Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+//     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+//     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+//     Route::resource('campaigns', \App\Http\Controllers\Admin\CampaignController::class);
+//     Route::resource('donations', \App\Http\Controllers\Admin\DonationController::class);
+//     Route::patch('donations/{donation}/status', [\App\Http\Controllers\Admin\DonationController::class, 'updateStatus'])->name('donations.status');
+// });
 
 require __DIR__.'/settings.php';

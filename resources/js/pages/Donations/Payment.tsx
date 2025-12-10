@@ -1,27 +1,20 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
-import AppLayout from '@/layouts/app-layout';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { Head, router } from '@inertiajs/react';
+import { Textarea } from '@/components/ui/textarea';
+import { formatCurrency } from '@/lib/utils';
+import { Head, router, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,
     Building2,
-    CheckCircle2,
-    Clock,
     CreditCard,
+    Heart,
     Info,
-    Smartphone,
     Wallet,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -37,14 +30,23 @@ interface Campaign {
 interface Donation {
     id: number;
     amount: number;
-    note: string;
+    note: string | null;
     status: string;
     created_at: string;
     campaign: Campaign;
 }
 
+interface User {
+    id: number;
+    name: string;
+    email: string;
+}
+
 interface Props {
     donation: Donation;
+    auth?: {
+        user: User;
+    };
 }
 
 interface PaymentMethod {
@@ -52,73 +54,48 @@ interface PaymentMethod {
     name: string;
     description: string;
     icon: React.ReactNode;
-    fee: number;
-    estimatedTime: string;
+    group: string;
 }
 
-export default function PaymentPage({ donation }: Props) {
+export default function PaymentPage({ donation, auth }: Props) {
     const [selectedMethod, setSelectedMethod] = useState<string>('');
     const [processing, setProcessing] = useState(false);
-    const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [isAnonymous, setIsAnonymous] = useState(false);
+
+    const { data, setData, errors } = useForm({
+        donor_name: auth?.user?.name || '',
+        donor_email: auth?.user?.email || '',
+        note: donation.note || '',
+        is_anonymous: false,
+    });
 
     const paymentMethods: PaymentMethod[] = [
         {
-            id: 'qris',
-            name: 'QRIS',
-            description:
-                'Scan QR code dengan aplikasi e-wallet atau mobile banking',
-            icon: <Smartphone className="h-6 w-6" />,
-            fee: 0,
-            estimatedTime: 'Instant',
-        },
-        {
             id: 'bank_transfer',
             name: 'Transfer Bank',
-            description: 'Transfer ke rekening bank BCA, Mandiri, BNI, BRI',
-            icon: <Building2 className="h-6 w-6" />,
-            fee: 0,
-            estimatedTime: '1-24 jam',
+            description: 'BCA, Mandiri, BRI, BNI',
+            icon: <Building2 className="h-5 w-5" />,
+            group: 'transfer',
         },
         {
-            id: 'ewallet_gopay',
-            name: 'GoPay',
-            description: 'Bayar menggunakan saldo GoPay',
-            icon: <Wallet className="h-6 w-6" />,
-            fee: 0,
-            estimatedTime: 'Instant',
-        },
-        {
-            id: 'ewallet_ovo',
-            name: 'OVO',
-            description: 'Bayar menggunakan saldo OVO',
-            icon: <Wallet className="h-6 w-6" />,
-            fee: 0,
-            estimatedTime: 'Instant',
-        },
-        {
-            id: 'ewallet_dana',
-            name: 'DANA',
-            description: 'Bayar menggunakan saldo DANA',
-            icon: <Wallet className="h-6 w-6" />,
-            fee: 0,
-            estimatedTime: 'Instant',
+            id: 'ewallet',
+            name: 'E-Wallet',
+            description: 'GoPay, OVO, DANA, ShopeePay',
+            icon: <Wallet className="h-5 w-5" />,
+            group: 'ewallet',
         },
         {
             id: 'credit_card',
             name: 'Kartu Kredit/Debit',
-            description: 'Visa, Mastercard, JCB',
-            icon: <CreditCard className="h-6 w-6" />,
-            fee: 0.029, // 2.9% fee
-            estimatedTime: 'Instant',
+            description: 'Visa, Mastercard',
+            icon: <CreditCard className="h-5 w-5" />,
+            group: 'card',
         },
     ];
 
-    const selectedPaymentMethod = paymentMethods.find(
-        (m) => m.id === selectedMethod,
-    );
-    const adminFee = selectedPaymentMethod
-        ? donation.amount * selectedPaymentMethod.fee
-        : 0;
+    // Calculate admin fee (2.5%)
+    const adminFeePercentage = 0.025;
+    const adminFee = Math.ceil(donation.amount * adminFeePercentage);
     const totalAmount = donation.amount + adminFee;
 
     const handlePayment = () => {
@@ -127,18 +104,22 @@ export default function PaymentPage({ donation }: Props) {
             return;
         }
 
-        if (!agreedToTerms) {
-            alert('Silakan setujui syarat dan ketentuan');
+        if (!isAnonymous && !data.donor_name.trim()) {
+            alert('Silakan masukkan nama Anda');
             return;
         }
 
         setProcessing(true);
 
-        // Submit payment with selected method
+        // Submit payment with donor data and selected method
         router.post(
             `/donations/${donation.id}/process-payment`,
             {
                 payment_method: selectedMethod,
+                donor_name: isAnonymous ? 'Hamba Allah' : data.donor_name,
+                donor_email: data.donor_email,
+                note: data.note,
+                is_anonymous: isAnonymous,
             },
             {
                 preserveScroll: true,
@@ -157,33 +138,139 @@ export default function PaymentPage({ donation }: Props) {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="Pembayaran Donasi" />
 
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-12 sm:px-6 lg:px-8 dark:from-gray-900 dark:to-gray-800">
-                <div className="mx-auto max-w-4xl">
+            <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+                <div className="container mx-auto px-4 py-8">
                     {/* Back Button */}
                     <Button
                         variant="ghost"
-                        onClick={() => router.visit('/donations')}
                         className="mb-6"
+                        onClick={() => window.history.back()}
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Kembali ke Riwayat Donasi
+                        Kembali
                     </Button>
 
-                    <div className="grid gap-6 lg:grid-cols-3">
-                        {/* Payment Methods Section */}
+                    <div className="grid gap-8 lg:grid-cols-3">
+                        {/* Left Column - Donor Data & Payment Methods */}
                         <div className="space-y-6 lg:col-span-2">
-                            <Card>
+                            {/* Donor Data Card */}
+                            <Card className="border-green-200">
                                 <CardHeader>
-                                    <CardTitle>
-                                        Pilih Metode Pembayaran
-                                    </CardTitle>
-                                    <CardDescription>
-                                        Pilih metode pembayaran yang paling
-                                        sesuai untuk Anda
-                                    </CardDescription>
+                                    <div className="flex items-center gap-2">
+                                        <Heart className="h-5 w-5 text-green-600" />
+                                        <CardTitle>Data Donatur</CardTitle>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {/* Name Field */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="donor_name">
+                                            Nama Lengkap{' '}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
+                                        </Label>
+                                        <Input
+                                            id="donor_name"
+                                            placeholder="Masukkan nama Anda"
+                                            value={data.donor_name}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'donor_name',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            disabled={isAnonymous}
+                                            className="bg-white"
+                                        />
+                                        {errors.donor_name && (
+                                            <p className="text-sm text-red-500">
+                                                {errors.donor_name}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Email Field (Optional) */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="donor_email">
+                                            Email (opsional)
+                                        </Label>
+                                        <Input
+                                            id="donor_email"
+                                            type="email"
+                                            placeholder="email@contoh.com"
+                                            value={data.donor_email}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'donor_email',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="bg-white"
+                                        />
+                                    </div>
+
+                                    {/* Message/Prayer Field */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="note">
+                                            Pesan/Doa (opsional)
+                                        </Label>
+                                        <Textarea
+                                            id="note"
+                                            placeholder="Tulis pesan atau doa untuk penerima donasi..."
+                                            value={data.note}
+                                            onChange={(e) =>
+                                                setData('note', e.target.value)
+                                            }
+                                            rows={4}
+                                            className="resize-none bg-white"
+                                        />
+                                    </div>
+
+                                    {/* Anonymous Checkbox */}
+                                    <div className="flex items-center space-x-2 pt-2">
+                                        <Checkbox
+                                            id="anonymous"
+                                            checked={isAnonymous}
+                                            onCheckedChange={(checked) => {
+                                                setIsAnonymous(
+                                                    checked as boolean,
+                                                );
+                                                setData(
+                                                    'is_anonymous',
+                                                    checked as boolean,
+                                                );
+                                                if (checked) {
+                                                    setData(
+                                                        'donor_name',
+                                                        'Hamba Allah',
+                                                    );
+                                                } else if (auth?.user) {
+                                                    setData(
+                                                        'donor_name',
+                                                        auth.user.name,
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                        <label
+                                            htmlFor="anonymous"
+                                            className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            Sembunyikan nama saya (donasi
+                                            anonim)
+                                        </label>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Payment Methods Card */}
+                            <Card className="border-green-200">
+                                <CardHeader>
+                                    <CardTitle>Metode Pembayaran</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <RadioGroup
@@ -194,10 +281,10 @@ export default function PaymentPage({ donation }: Props) {
                                         {paymentMethods.map((method) => (
                                             <div
                                                 key={method.id}
-                                                className={`relative flex cursor-pointer items-start rounded-lg border-2 p-4 transition-all ${
+                                                className={`relative flex cursor-pointer items-center space-x-3 rounded-lg border p-4 transition-all ${
                                                     selectedMethod === method.id
-                                                        ? 'border-primary bg-primary/5'
-                                                        : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
+                                                        ? 'border-green-500 bg-green-50 ring-2 ring-green-500'
+                                                        : 'border-gray-200 hover:border-green-300'
                                                 }`}
                                                 onClick={() =>
                                                     setSelectedMethod(method.id)
@@ -206,115 +293,66 @@ export default function PaymentPage({ donation }: Props) {
                                                 <RadioGroupItem
                                                     value={method.id}
                                                     id={method.id}
-                                                    className="mt-1"
+                                                    className="text-green-600"
                                                 />
-                                                <div className="ml-3 flex flex-1 items-start gap-4">
-                                                    <div className="flex-shrink-0 text-primary">
+                                                <div className="flex flex-1 items-center gap-3">
+                                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
                                                         {method.icon}
                                                     </div>
-                                                    <div className="min-w-0 flex-1">
+                                                    <div className="flex-1">
                                                         <Label
                                                             htmlFor={method.id}
-                                                            className="cursor-pointer text-base font-semibold"
+                                                            className="cursor-pointer font-semibold"
                                                         >
                                                             {method.name}
                                                         </Label>
-                                                        <p className="text-muted-foreground mt-1 text-sm">
+                                                        <p className="text-sm text-gray-600">
                                                             {method.description}
                                                         </p>
-                                                        <div className="text-muted-foreground mt-2 flex items-center gap-4 text-xs">
-                                                            <span className="flex items-center gap-1">
-                                                                <Clock className="h-3 w-3" />
-                                                                {
-                                                                    method.estimatedTime
-                                                                }
-                                                            </span>
-                                                            {method.fee > 0 && (
-                                                                <span className="text-orange-600 dark:text-orange-400">
-                                                                    Biaya admin{' '}
-                                                                    {(
-                                                                        method.fee *
-                                                                        100
-                                                                    ).toFixed(
-                                                                        1,
-                                                                    )}
-                                                                    %
-                                                                </span>
-                                                            )}
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </RadioGroup>
-                                </CardContent>
-                            </Card>
 
-                            {/* Terms and Conditions */}
-                            <Card>
-                                <CardContent className="pt-6">
-                                    <div className="flex items-start gap-3">
-                                        <input
-                                            type="checkbox"
-                                            id="terms"
-                                            checked={agreedToTerms}
-                                            onChange={(e) =>
-                                                setAgreedToTerms(
-                                                    e.target.checked,
-                                                )
-                                            }
-                                            className="mt-1"
-                                        />
-                                        <Label
-                                            htmlFor="terms"
-                                            className="cursor-pointer text-sm"
-                                        >
-                                            Saya setuju dengan{' '}
-                                            <a
-                                                href="/terms"
-                                                className="text-primary hover:underline"
-                                            >
-                                                syarat dan ketentuan
-                                            </a>{' '}
-                                            yang berlaku dan memahami bahwa
-                                            donasi yang telah dibayarkan tidak
-                                            dapat dikembalikan.
-                                        </Label>
-                                    </div>
+                                    {selectedMethod && (
+                                        <Alert className="mt-4 border-blue-200 bg-blue-50">
+                                            <Info className="h-4 w-4 text-blue-600" />
+                                            <AlertDescription className="text-sm text-blue-800">
+                                                Anda akan diarahkan ke halaman
+                                                pembayaran setelah menekan
+                                                tombol "Lanjut ke Pembayaran"
+                                            </AlertDescription>
+                                        </Alert>
+                                    )}
                                 </CardContent>
                             </Card>
                         </div>
 
-                        {/* Order Summary Section */}
+                        {/* Right Column - Payment Summary */}
                         <div className="lg:col-span-1">
-                            <Card className="sticky top-24">
+                            <Card className="sticky top-8 border-green-200">
                                 <CardHeader>
-                                    <CardTitle className="text-lg">
-                                        Ringkasan Donasi
-                                    </CardTitle>
+                                    <CardTitle>Ringkasan Pembayaran</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     {/* Campaign Info */}
-                                    <div>
-                                        <p className="text-muted-foreground mb-1 text-sm">
-                                            Campaign
+                                    <div className="space-y-2">
+                                        <p className="text-sm text-gray-600">
+                                            Kampanye
                                         </p>
                                         <p className="font-semibold">
                                             {donation.campaign.title}
-                                        </p>
-                                        <p className="text-muted-foreground text-sm">
-                                            Oleh{' '}
-                                            {donation.campaign.organizer.name}
                                         </p>
                                     </div>
 
                                     <Separator />
 
-                                    {/* Amount Details */}
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-muted-foreground">
-                                                Jumlah Donasi
+                                    {/* Amount Breakdown */}
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-600">
+                                                Nominal Donasi
                                             </span>
                                             <span className="font-medium">
                                                 {formatCurrency(
@@ -322,100 +360,61 @@ export default function PaymentPage({ donation }: Props) {
                                                 )}
                                             </span>
                                         </div>
-                                        {adminFee > 0 && (
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-muted-foreground">
-                                                    Biaya Admin
-                                                </span>
-                                                <span className="font-medium">
-                                                    {formatCurrency(adminFee)}
-                                                </span>
-                                            </div>
-                                        )}
+
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-600">
+                                                Biaya Admin (2.5%)
+                                            </span>
+                                            <span className="font-medium">
+                                                {formatCurrency(adminFee)}
+                                            </span>
+                                        </div>
+
                                         <Separator />
-                                        <div className="flex justify-between">
-                                            <span className="font-semibold">
+
+                                        <div className="flex items-center justify-between text-lg">
+                                            <span className="font-bold">
                                                 Total Pembayaran
                                             </span>
-                                            <span className="text-lg font-bold text-primary">
+                                            <span className="font-bold text-green-600">
                                                 {formatCurrency(totalAmount)}
                                             </span>
                                         </div>
                                     </div>
 
-                                    {donation.note && (
-                                        <>
-                                            <Separator />
-                                            <div>
-                                                <p className="text-muted-foreground mb-1 text-sm">
-                                                    Catatan
-                                                </p>
-                                                <p className="text-sm">
-                                                    {donation.note}
-                                                </p>
-                                            </div>
-                                        </>
-                                    )}
-
                                     <Separator />
 
-                                    {/* Transaction Info */}
-                                    <div className="text-muted-foreground space-y-1 text-xs">
-                                        <div className="flex justify-between">
-                                            <span>ID Donasi</span>
-                                            <span className="font-mono">
-                                                #{donation.id}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Tanggal</span>
-                                            <span>
-                                                {formatDate(
-                                                    donation.created_at,
-                                                )}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                                <CardFooter className="flex flex-col gap-3">
+                                    {/* Payment Button */}
                                     <Button
                                         onClick={handlePayment}
                                         disabled={
                                             !selectedMethod ||
-                                            !agreedToTerms ||
-                                            processing
+                                            processing ||
+                                            (!isAnonymous &&
+                                                !data.donor_name.trim())
                                         }
-                                        className="w-full"
+                                        className="w-full bg-green-600 text-white hover:bg-green-700"
                                         size="lg"
                                     >
-                                        {processing ? (
-                                            <>
-                                                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
-                                                Memproses...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CheckCircle2 className="mr-2 h-4 w-4" />
-                                                Bayar{' '}
-                                                {formatCurrency(totalAmount)}
-                                            </>
-                                        )}
+                                        {processing
+                                            ? 'Memproses...'
+                                            : 'Lanjut ke Pembayaran'}
                                     </Button>
 
-                                    <Alert>
+                                    {/* Info Alert */}
+                                    <Alert className="border-gray-200">
                                         <Info className="h-4 w-4" />
-                                        <AlertDescription className="text-xs">
-                                            Pembayaran Anda akan diproses dengan
-                                            aman melalui gateway pembayaran
-                                            terpercaya.
+                                        <AlertDescription className="text-xs text-gray-600">
+                                            Dengan melanjutkan, Anda menyetujui
+                                            syarat dan ketentuan yang berlaku
                                         </AlertDescription>
                                     </Alert>
-                                </CardFooter>
+                                </CardContent>
                             </Card>
                         </div>
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }

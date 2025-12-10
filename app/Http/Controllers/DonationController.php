@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Donation;
 use App\Models\Campaign;
+use App\Models\Donation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -22,7 +22,7 @@ class DonationController extends Controller
             ->get();
 
         return Inertia::render('Donations/Index', [
-            'donations' => $donations
+            'donations' => $donations,
         ]);
     }
 
@@ -38,7 +38,7 @@ class DonationController extends Controller
         }
 
         return Inertia::render('Donations/Create', [
-            'campaign' => $campaign
+            'campaign' => $campaign,
         ]);
     }
 
@@ -61,8 +61,8 @@ class DonationController extends Controller
             'status' => 'pending',
         ]);
 
-        // Redirect to payment selection or confirmation
-        return redirect()->route('donations.show', $donation->id)->with('success', 'Donation initiated. Please complete payment.');
+        // Redirect directly to payment page
+        return redirect()->route('donations.payment', $donation->id)->with('success', 'Donation created. Please complete payment.');
     }
 
     /**
@@ -76,8 +76,9 @@ class DonationController extends Controller
         }
 
         $donation->load(['campaign', 'payment']);
+
         return Inertia::render('Donations/Show', [
-            'donation' => $donation
+            'donation' => $donation,
         ]);
     }
 
@@ -106,10 +107,10 @@ class DonationController extends Controller
         ]);
 
         $donation->update(['status' => $validated['status']]);
-        
+
         // Update collected amount if paid
         if ($validated['status'] === 'paid') {
-             $donation->campaign->increment('collected_amount', $donation->amount);
+            $donation->campaign->increment('collected_amount', $donation->amount);
         }
 
         return back()->with('success', 'Donation status updated.');

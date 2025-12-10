@@ -8,7 +8,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import AppLayout from '@/layouts/app-layout';
+
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { Head, router } from '@inertiajs/react';
 import {
@@ -139,9 +139,9 @@ export default function PaymentPending({ donation }: Props) {
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between rounded-md bg-gray-50 p-3 dark:bg-gray-800">
                                             <div>
-                                                <p className="text-muted-foreground mb-1 text-xs">
+                                                <span className="text-sm text-gray-600">
                                                     Nomor Rekening
-                                                </p>
+                                                </span>
                                                 <p className="font-mono text-lg font-semibold">
                                                     {account.accountNumber}
                                                 </p>
@@ -165,9 +165,9 @@ export default function PaymentPending({ donation }: Props) {
                                             </Button>
                                         </div>
                                         <div className="rounded-md bg-gray-50 p-3 dark:bg-gray-800">
-                                            <p className="text-muted-foreground mb-1 text-xs">
+                                            <span className="text-sm text-gray-600">
                                                 Atas Nama
-                                            </p>
+                                            </span>
                                             <p className="font-semibold">
                                                 {account.accountName}
                                             </p>
@@ -208,9 +208,9 @@ export default function PaymentPending({ donation }: Props) {
                                     QR Code Placeholder
                                 </p>
                             </div>
-                            <p className="text-muted-foreground text-sm">
+                            <span className="text-sm text-gray-600">
                                 Scan kode QR ini dengan aplikasi pembayaran Anda
-                            </p>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -275,10 +275,10 @@ export default function PaymentPending({ donation }: Props) {
     };
 
     return (
-        <AppLayout>
+        <>
             <Head title="Menunggu Pembayaran" />
 
-            <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 px-4 py-12 sm:px-6 lg:px-8 dark:from-gray-900 dark:to-gray-800">
+            <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 px-4 py-12 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-4xl">
                     {/* Back Button */}
                     <Button
@@ -292,13 +292,13 @@ export default function PaymentPending({ donation }: Props) {
 
                     {/* Status Header */}
                     <div className="mb-8 text-center">
-                        <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
-                            <Clock className="h-12 w-12 animate-pulse text-orange-600 dark:text-orange-400" />
+                        <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+                            <Clock className="h-12 w-12 text-green-600" />
                         </div>
-                        <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                        <h1 className="mb-2 text-3xl font-bold text-gray-900">
                             Menunggu Pembayaran
                         </h1>
-                        <p className="text-lg text-gray-600 dark:text-gray-400">
+                        <p className="text-lg text-gray-600">
                             Silakan selesaikan pembayaran Anda
                         </p>
                     </div>
@@ -352,7 +352,7 @@ export default function PaymentPending({ donation }: Props) {
                                     <Separator />
 
                                     <div className="flex justify-between">
-                                        <span className="text-muted-foreground text-sm">
+                                        <span className="text-sm text-gray-600">
                                             Jumlah Donasi
                                         </span>
                                         <span className="text-lg font-bold text-primary">
@@ -404,6 +404,6 @@ export default function PaymentPending({ donation }: Props) {
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
