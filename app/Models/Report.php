@@ -19,6 +19,11 @@ class Report extends Model
         'published_at',
     ];
 
+    protected $casts = [
+        'total_spent' => 'integer',
+        'published_at' => 'datetime',
+    ];
+
     public function campaign()
     {
         return $this->belongsTo(Campaign::class);

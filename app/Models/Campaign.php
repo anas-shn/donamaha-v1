@@ -21,6 +21,13 @@ class Campaign extends Model
         'end_date',
     ];
 
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'target_amount' => 'integer',
+        'collected_amount' => 'integer',
+    ];
+
     public function organizer()
     {
         return $this->belongsTo(User::class, 'organizer_id');

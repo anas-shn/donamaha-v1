@@ -19,8 +19,15 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import { Head, Link, router } from '@inertiajs/react';
-import { Calendar, DollarSign, FileText, Filter, Search } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import {
+    Calendar,
+    DollarSign,
+    FileText,
+    Filter,
+    Plus,
+    Search,
+} from 'lucide-react';
 import { useState } from 'react';
 
 interface Campaign {
@@ -50,9 +57,18 @@ interface Report {
 interface Props {
     reports: Report[];
     campaign_id?: number | null;
+    auth?: {
+        user: {
+            id: number;
+            name: string;
+            email: string;
+            role: string;
+        };
+    };
 }
 
 export default function ReportsIndex({ reports, campaign_id }: Props) {
+    const { auth } = usePage<Props>().props;
     const [search, setSearch] = useState('');
     const [selectedCampaign, setSelectedCampaign] = useState<string>(
         campaign_id?.toString() || 'all',
@@ -94,38 +110,57 @@ export default function ReportsIndex({ reports, campaign_id }: Props) {
                     {/* Hero Section */}
                     <section className="to-primary-dark bg-gradient-to-r from-primary py-16 text-white">
                         <div className="container-custom">
-                            <div className="max-w-3xl">
-                                <div className="mb-4 flex items-center gap-3">
-                                    <div className="rounded-lg bg-white/10 p-3 backdrop-blur-sm">
-                                        <FileText className="h-8 w-8" />
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="max-w-3xl">
+                                    <div className="mb-4 flex items-center gap-3">
+                                        <div className="rounded-lg bg-white/10 p-3 backdrop-blur-sm">
+                                            <FileText className="h-8 w-8" />
+                                        </div>
+                                        <h1 className="text-4xl font-bold">
+                                            Laporan Kampanye
+                                        </h1>
                                     </div>
-                                    <h1 className="text-4xl font-bold">
-                                        Laporan Kampanye
-                                    </h1>
+                                    <p className="text-xl text-white/90">
+                                        Transparansi penggunaan dana donasi
+                                        untuk setiap kampanye
+                                    </p>
+                                    <div className="mt-6 flex items-center gap-4 text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <FileText className="h-4 w-4" />
+                                            <span>
+                                                {reports.length} Laporan
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <DollarSign className="h-4 w-4" />
+                                            <span>
+                                                {formatCurrency(
+                                                    reports.reduce(
+                                                        (sum, r) =>
+                                                            sum + r.total_spent,
+                                                        0,
+                                                    ),
+                                                )}{' '}
+                                                Total Penggunaan
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="text-xl text-white/90">
-                                    Transparansi penggunaan dana donasi untuk
-                                    setiap kampanye
-                                </p>
-                                <div className="mt-6 flex items-center gap-4 text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <FileText className="h-4 w-4" />
-                                        <span>{reports.length} Laporan</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <DollarSign className="h-4 w-4" />
-                                        <span>
-                                            {formatCurrency(
-                                                reports.reduce(
-                                                    (sum, r) =>
-                                                        sum + r.total_spent,
-                                                    0,
-                                                ),
-                                            )}{' '}
-                                            Total Penggunaan
-                                        </span>
-                                    </div>
-                                </div>
+
+                                {/* Buat Laporan Button for Organizers */}
+                                {auth?.user &&
+                                    (auth.user.role === 'organizer' ||
+                                        auth.user.role === 'admin') && (
+                                        <Link href="/reports/create">
+                                            <Button
+                                                size="lg"
+                                                className="btn-shadow bg-white text-primary hover:bg-white/90"
+                                            >
+                                                <Plus className="mr-2 h-5 w-5" />
+                                                Buat Laporan
+                                            </Button>
+                                        </Link>
+                                    )}
                             </div>
                         </div>
                     </section>

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCampaignRequest;
 use App\Models\Campaign;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class CampaignController extends Controller
 {
@@ -15,8 +16,9 @@ class CampaignController extends Controller
     public function index()
     {
         $campaigns = Campaign::with('organizer')->latest()->get();
+
         return Inertia::render('campaigns/index', [
-            'campaigns' => $campaigns
+            'campaigns' => $campaigns,
         ]);
     }
 
@@ -25,22 +27,20 @@ class CampaignController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Campaigns/Create');
+        // Check if user is organizer or admin
+        if (! auth()->check() || ! in_array(auth()->user()->role, ['organizer', 'admin'])) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return Inertia::render('campaigns/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCampaignRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'full_description' => 'required|string',
-            'target_amount' => 'required|numeric|min:0',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'image' => 'nullable|image|max:2048',
-        ]);
+        $validated = $request->validated();
 
         $path = null;
         if ($request->hasFile('image')) {
@@ -56,9 +56,11 @@ class CampaignController extends Controller
             'end_date' => $validated['end_date'],
             'image_path' => $path,
             'status' => 'active',
+            'collected_amount' => 0,
         ]);
 
-        return redirect()->route('campaigns.index')->with('success', 'Campaign created successfully.');
+        return redirect()->route('campaigns.show', $campaign->id)
+            ->with('success', 'Kampanye berhasil dibuat!');
     }
 
     /**
@@ -67,8 +69,9 @@ class CampaignController extends Controller
     public function show(Campaign $campaign)
     {
         $campaign->load(['organizer', 'donations.donor', 'reports']);
+
         return Inertia::render('campaigns/show', [
-            'campaign' => $campaign
+            'campaign' => $campaign,
         ]);
     }
 
@@ -77,9 +80,13 @@ class CampaignController extends Controller
      */
     public function edit(Campaign $campaign)
     {
-        // Authorization check recommended here
-        return Inertia::render('Campaigns/Edit', [
-            'campaign' => $campaign
+        // Check if user is the organizer or admin
+        if (auth()->id() !== $campaign->organizer_id && auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return Inertia::render('campaigns/Edit', [
+            'campaign' => $campaign,
         ]);
     }
 
@@ -88,7 +95,10 @@ class CampaignController extends Controller
      */
     public function update(Request $request, Campaign $campaign)
     {
-        // Authorization check recommended here
+        // Check if user is the organizer or admin
+        if (auth()->id() !== $campaign->organizer_id && auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -116,7 +126,8 @@ class CampaignController extends Controller
             'status' => $validated['status'],
         ]);
 
-        return redirect()->route('campaigns.index')->with('success', 'Campaign updated successfully.');
+        return redirect()->route('campaigns.show', $campaign->id)
+            ->with('success', 'Kampanye berhasil diperbarui!');
     }
 
     /**
@@ -124,7 +135,10 @@ class CampaignController extends Controller
      */
     public function destroy(Campaign $campaign)
     {
-        // Authorization check recommended here
+        // Check if user is the organizer or admin
+        if (auth()->id() !== $campaign->organizer_id && auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
 
         if ($campaign->image_path) {
             Storage::disk('public')->delete($campaign->image_path);
@@ -132,6 +146,7 @@ class CampaignController extends Controller
 
         $campaign->delete();
 
-        return redirect()->route('campaigns.index')->with('success', 'Campaign deleted successfully.');
+        return redirect()->route('campaigns.index')
+            ->with('success', 'Kampanye berhasil dihapus!');
     }
 }

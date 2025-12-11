@@ -8,13 +8,22 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Link, usePage } from '@inertiajs/react';
-import { Heart, History, LogOut, Settings, User } from 'lucide-react';
+import {
+    Heart,
+    History,
+    LogOut,
+    PlusCircle,
+    Settings,
+    ShieldCheck,
+    User,
+} from 'lucide-react';
 
 interface Auth {
     user?: {
         id: number;
         name: string;
         email: string;
+        role?: string;
     };
 }
 
@@ -48,12 +57,6 @@ export const Navbar = () => {
                             Home
                         </Link>
                         <Link
-                            href="/about"
-                            className="text-muted-foreground text-sm font-medium transition-colors hover:text-primary"
-                        >
-                            About Us
-                        </Link>
-                        <Link
                             href="/campaigns"
                             className="text-muted-foreground text-sm font-medium transition-colors hover:text-primary"
                         >
@@ -77,6 +80,28 @@ export const Navbar = () => {
 
                     {/* Auth Section */}
                     <div className="hidden items-center gap-4 md:flex">
+                        {auth.user?.role === 'admin' && (
+                            <a href="/admin">
+                                <Button
+                                    variant="outline"
+                                    className="flex items-center gap-2 border-primary text-primary hover:bg-primary hover:text-white"
+                                >
+                                    <ShieldCheck className="h-4 w-4" />
+                                    <span>Admin Panel</span>
+                                </Button>
+                            </a>
+                        )}
+                        {auth.user?.role === 'organizer' && (
+                            <Link href="/campaigns/create">
+                                <Button
+                                    variant="outline"
+                                    className="flex items-center gap-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                                >
+                                    <PlusCircle className="h-4 w-4" />
+                                    <span>Tambah Kampanye</span>
+                                </Button>
+                            </Link>
+                        )}
                         {auth.user ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
