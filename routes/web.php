@@ -66,17 +66,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Public webhook endpoint for payment gateway callbacks
 Route::post('/payments/callback', [\App\Http\Controllers\PaymentController::class, 'handleCallback'])->name('payments.callback');
 
-// Admin panel menggunakan Filament di /admin
-// Filament akan otomatis handle semua routes untuk admin panel
-// Hanya user dengan role 'admin' yang bisa akses (lihat User::canAccessPanel())
-
-// Custom admin routes (commented - using Filament instead)
-// Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
-//     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-//     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-//     Route::resource('campaigns', \App\Http\Controllers\Admin\CampaignController::class);
-//     Route::resource('donations', \App\Http\Controllers\Admin\DonationController::class);
-//     Route::patch('donations/{donation}/status', [\App\Http\Controllers\Admin\DonationController::class, 'updateStatus'])->name('donations.status');
-// });
-
 require __DIR__.'/settings.php';
